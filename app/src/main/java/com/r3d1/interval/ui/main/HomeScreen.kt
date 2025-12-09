@@ -93,7 +93,6 @@ fun HomeScreen(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ProfileCard(
     profile: Profile,
