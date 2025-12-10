@@ -1,6 +1,18 @@
 // R3D1 Interval Timer - PWA
 // ========================
 
+// Icon SVG paths
+const PROFILE_ICONS = {
+    timer: 'M15 1H9v2h6V1zm-4 13h2V8h-2v6zm8.03-6.61l1.42-1.42c-.43-.51-.9-.99-1.41-1.41l-1.42 1.42A8.962 8.962 0 0012 4c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-2.12-.74-4.07-1.97-5.61zM12 20c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z',
+    code: 'M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z',
+    chat: 'M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z',
+    meeting: 'M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z',
+    coffee: 'M20 3H4v10c0 2.21 1.79 4 4 4h6c2.21 0 4-1.79 4-4v-3h2c1.11 0 2-.89 2-2V5c0-1.11-.89-2-2-2zm0 5h-2V5h2v3zM4 19h16v2H4v-2z',
+    bolt: 'M11 21h-1l1-7H7.5c-.88 0-.33-.75-.31-.78C8.48 10.94 10.42 7.54 13.01 3h1l-1 7h3.51c.4 0 .62.19.4.66C12.97 17.55 11 21 11 21z',
+    fitness: 'M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2.71 4.14l1.43 1.43L2 7.71l1.43 1.43L2 10.57 3.43 12 7 8.43 15.57 17 12 20.57 13.43 22l1.43-1.43L16.29 22l2.14-2.14 1.43 1.43 1.43-1.43-1.43-1.43L22 16.29l-1.43-1.43z',
+    book: 'M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z'
+};
+
 // Default profiles
 const DEFAULT_PROFILES = [
     {
@@ -11,6 +23,7 @@ const DEFAULT_PROFILES = [
         breakAfterIntervals: 0,
         breakDurationMinutes: 5,
         color: '#2196F3',
+        icon: 'meeting',
         isDefault: true
     },
     {
@@ -21,6 +34,7 @@ const DEFAULT_PROFILES = [
         breakAfterIntervals: 4,
         breakDurationMinutes: 5,
         color: '#4CAF50',
+        icon: 'code',
         isDefault: true
     },
     {
@@ -31,6 +45,7 @@ const DEFAULT_PROFILES = [
         breakAfterIntervals: 0,
         breakDurationMinutes: 5,
         color: '#FF9800',
+        icon: 'chat',
         isDefault: true
     },
     {
@@ -41,6 +56,7 @@ const DEFAULT_PROFILES = [
         breakAfterIntervals: 0,
         breakDurationMinutes: 5,
         color: '#E91E63',
+        icon: 'bolt',
         isDefault: true
     }
 ];
@@ -52,7 +68,8 @@ let state = {
     settings: {
         sound: true,
         vibration: true,
-        wakelock: false
+        wakelock: false,
+        darkTheme: true
     },
     timer: {
         status: 'idle', // idle, running, paused, break, completed
@@ -76,6 +93,7 @@ let audioContext = null;
 // Initialize app
 function init() {
     loadState();
+    applyTheme();
     renderProfiles();
     setupEventListeners();
     applySettings();
@@ -115,11 +133,13 @@ function showScreen(screenId) {
 // Render Profiles
 function renderProfiles() {
     const grid = document.getElementById('profiles-grid');
-    grid.innerHTML = state.profiles.map(profile => `
+    grid.innerHTML = state.profiles.map(profile => {
+        const iconPath = PROFILE_ICONS[profile.icon] || PROFILE_ICONS.timer;
+        return `
         <div class="profile-card" data-id="${profile.id}" style="--profile-color: ${profile.color}">
             <div class="profile-icon" style="background: ${profile.color}33">
                 <svg viewBox="0 0 24 24" style="fill: ${profile.color}">
-                    <path d="M15 1H9v2h6V1zm-4 13h2V8h-2v6zm8.03-6.61l1.42-1.42c-.43-.51-.9-.99-1.41-1.41l-1.42 1.42A8.962 8.962 0 0012 4c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-2.12-.74-4.07-1.97-5.61zM12 20c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/>
+                    <path d="${iconPath}"/>
                 </svg>
             </div>
             <div>
@@ -134,7 +154,7 @@ function renderProfiles() {
                 <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
             </button>
         </div>
-    `).join('');
+    `}).join('');
 
     // Add click handlers
     grid.querySelectorAll('.profile-card').forEach(card => {
@@ -431,6 +451,12 @@ function openProfileEditor(profileId = null) {
     // Update break settings visibility
     document.getElementById('break-settings').classList.toggle('hidden', !(profile && profile.breakAfterIntervals > 0));
 
+    // Icon selection
+    const selectedIcon = profile ? profile.icon || 'timer' : 'timer';
+    document.querySelectorAll('.icon-btn-select').forEach(btn => {
+        btn.classList.toggle('selected', btn.dataset.icon === selectedIcon);
+    });
+
     // Color selection
     const selectedColor = profile ? profile.color : '#2196F3';
     document.querySelectorAll('.color-btn').forEach(btn => {
@@ -451,6 +477,7 @@ function saveProfile() {
     }
 
     const selectedColor = document.querySelector('.color-btn.selected');
+    const selectedIcon = document.querySelector('.icon-btn-select.selected');
     const breakEnabled = document.getElementById('break-toggle').checked;
 
     const profileData = {
@@ -460,6 +487,7 @@ function saveProfile() {
         breakAfterIntervals: breakEnabled ? parseInt(document.getElementById('break-interval-slider').value) : 0,
         breakDurationMinutes: parseInt(document.getElementById('break-duration-slider').value),
         color: selectedColor ? selectedColor.dataset.color : '#2196F3',
+        icon: selectedIcon ? selectedIcon.dataset.icon : 'timer',
         isDefault: false
     };
 
@@ -561,6 +589,79 @@ function applySettings() {
     document.getElementById('sound-toggle').checked = state.settings.sound;
     document.getElementById('vibration-toggle').checked = state.settings.vibration;
     document.getElementById('wakelock-toggle').checked = state.settings.wakelock;
+    document.getElementById('theme-toggle').checked = state.settings.darkTheme;
+}
+
+// Theme
+function applyTheme() {
+    if (state.settings.darkTheme) {
+        document.documentElement.removeAttribute('data-theme');
+    } else {
+        document.documentElement.setAttribute('data-theme', 'light');
+    }
+}
+
+// Haptic feedback
+function hapticFeedback() {
+    if (state.settings.vibration && navigator.vibrate) {
+        navigator.vibrate(10);
+    }
+}
+
+// Export data
+function exportData() {
+    const data = {
+        profiles: state.profiles,
+        sessions: state.sessions,
+        settings: state.settings,
+        exportDate: new Date().toISOString(),
+        version: '1.0.0'
+    };
+
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `r3d1-backup-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+// Import data
+function importData(file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        try {
+            const data = JSON.parse(e.target.result);
+
+            if (!data.profiles || !Array.isArray(data.profiles)) {
+                alert('Invalid backup file format');
+                return;
+            }
+
+            if (confirm('This will replace all your current data. Continue?')) {
+                state.profiles = data.profiles;
+                state.sessions = data.sessions || [];
+                if (data.settings) {
+                    state.settings = { ...state.settings, ...data.settings };
+                }
+
+                saveProfiles();
+                saveSessions();
+                saveSettings();
+                applySettings();
+                applyTheme();
+                renderProfiles();
+
+                alert('Data imported successfully!');
+            }
+        } catch (err) {
+            alert('Error reading backup file: ' + err.message);
+        }
+    };
+    reader.readAsText(file);
 }
 
 // Audio & Vibration
@@ -693,12 +794,32 @@ function setupEventListeners() {
         document.getElementById('break-duration-value').textContent = e.target.value;
     });
 
+    // Icon selection
+    document.querySelectorAll('.icon-btn-select').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.icon-btn-select').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+        });
+    });
+
     // Color selection
     document.querySelectorAll('.color-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('selected'));
             btn.classList.add('selected');
         });
+    });
+
+    // Test buttons
+    document.getElementById('test-sound-btn').addEventListener('click', () => {
+        playBeep();
+    });
+    document.getElementById('test-vibration-btn').addEventListener('click', () => {
+        if (navigator.vibrate) {
+            navigator.vibrate([200, 100, 200]);
+        } else {
+            alert('Vibration not supported on this device');
+        }
     });
 
     // Settings toggles
@@ -717,6 +838,23 @@ function setupEventListeners() {
     document.getElementById('wakelock-toggle').addEventListener('change', (e) => {
         state.settings.wakelock = e.target.checked;
         saveSettings();
+    });
+    document.getElementById('theme-toggle').addEventListener('change', (e) => {
+        state.settings.darkTheme = e.target.checked;
+        saveSettings();
+        applyTheme();
+    });
+
+    // Export/Import
+    document.getElementById('export-data-btn').addEventListener('click', exportData);
+    document.getElementById('import-data-btn').addEventListener('click', () => {
+        document.getElementById('import-file-input').click();
+    });
+    document.getElementById('import-file-input').addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+            importData(e.target.files[0]);
+            e.target.value = ''; // Reset for future imports
+        }
     });
 
     document.getElementById('clear-stats-btn').addEventListener('click', () => {
@@ -778,6 +916,9 @@ function setupQuickStartPickers() {
         btn.addEventListener('click', () => {
             const picker = btn.dataset.picker;
             const dir = btn.dataset.dir;
+
+            // Haptic feedback on picker change
+            hapticFeedback();
 
             if (picker === 'minutes') {
                 if (dir === 'up') {

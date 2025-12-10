@@ -162,6 +162,36 @@
                 </div>
 
                 <div class="form-group">
+                    <label>Icon</label>
+                    <div class="icon-options" id="icon-options">
+                        <button class="icon-btn-select selected" data-icon="timer">
+                            <svg viewBox="0 0 24 24"><path d="M15 1H9v2h6V1zm-4 13h2V8h-2v6zm8.03-6.61l1.42-1.42c-.43-.51-.9-.99-1.41-1.41l-1.42 1.42A8.962 8.962 0 0012 4c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-2.12-.74-4.07-1.97-5.61zM12 20c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/></svg>
+                        </button>
+                        <button class="icon-btn-select" data-icon="code">
+                            <svg viewBox="0 0 24 24"><path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/></svg>
+                        </button>
+                        <button class="icon-btn-select" data-icon="chat">
+                            <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/></svg>
+                        </button>
+                        <button class="icon-btn-select" data-icon="meeting">
+                            <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+                        </button>
+                        <button class="icon-btn-select" data-icon="coffee">
+                            <svg viewBox="0 0 24 24"><path d="M20 3H4v10c0 2.21 1.79 4 4 4h6c2.21 0 4-1.79 4-4v-3h2c1.11 0 2-.89 2-2V5c0-1.11-.89-2-2-2zm0 5h-2V5h2v3zM4 19h16v2H4v-2z"/></svg>
+                        </button>
+                        <button class="icon-btn-select" data-icon="bolt">
+                            <svg viewBox="0 0 24 24"><path d="M11 21h-1l1-7H7.5c-.88 0-.33-.75-.31-.78C8.48 10.94 10.42 7.54 13.01 3h1l-1 7h3.51c.4 0 .62.19.4.66C12.97 17.55 11 21 11 21z"/></svg>
+                        </button>
+                        <button class="icon-btn-select" data-icon="fitness">
+                            <svg viewBox="0 0 24 24"><path d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2.71 4.14l1.43 1.43L2 7.71l1.43 1.43L2 10.57 3.43 12 7 8.43 15.57 17 12 20.57 13.43 22l1.43-1.43L16.29 22l2.14-2.14 1.43 1.43 1.43-1.43-1.43-1.43L22 16.29l-1.43-1.43z"/></svg>
+                        </button>
+                        <button class="icon-btn-select" data-icon="book">
+                            <svg viewBox="0 0 24 24"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group">
                     <label>Color</label>
                     <div class="color-options" id="color-options">
                         <button class="color-btn selected" data-color="#2196F3" style="background:#2196F3"></button>
@@ -201,25 +231,41 @@
                             <span class="setting-title">Sound</span>
                             <span class="setting-desc">Play beep when interval completes</span>
                         </div>
-                        <label class="switch">
-                            <input type="checkbox" id="sound-toggle" checked>
-                            <span class="slider"></span>
-                        </label>
+                        <div class="setting-controls">
+                            <button id="test-sound-btn" class="mini-btn">Test</button>
+                            <label class="switch">
+                                <input type="checkbox" id="sound-toggle" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
                     </div>
                     <div class="setting-item">
                         <div class="setting-info">
                             <span class="setting-title">Vibration</span>
                             <span class="setting-desc">Vibrate when interval completes</span>
                         </div>
-                        <label class="switch">
-                            <input type="checkbox" id="vibration-toggle" checked>
-                            <span class="slider"></span>
-                        </label>
+                        <div class="setting-controls">
+                            <button id="test-vibration-btn" class="mini-btn">Test</button>
+                            <label class="switch">
+                                <input type="checkbox" id="vibration-toggle" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
                     </div>
                 </section>
 
                 <section>
                     <h2>Display</h2>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <span class="setting-title">Dark Theme</span>
+                            <span class="setting-desc">Switch between dark and light mode</span>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="theme-toggle" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
                     <div class="setting-item">
                         <div class="setting-info">
                             <span class="setting-title">Keep Screen On</span>
@@ -234,6 +280,21 @@
 
                 <section>
                     <h2>Data</h2>
+                    <div class="setting-item clickable" id="export-data-btn">
+                        <div class="setting-info">
+                            <span class="setting-title">Export Data</span>
+                            <span class="setting-desc">Backup profiles and statistics to file</span>
+                        </div>
+                        <svg viewBox="0 0 24 24" class="setting-icon"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                    </div>
+                    <div class="setting-item clickable" id="import-data-btn">
+                        <div class="setting-info">
+                            <span class="setting-title">Import Data</span>
+                            <span class="setting-desc">Restore from backup file</span>
+                        </div>
+                        <svg viewBox="0 0 24 24" class="setting-icon"><path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z"/></svg>
+                    </div>
+                    <input type="file" id="import-file-input" accept=".json" style="display:none">
                     <div class="setting-item clickable" id="clear-stats-btn">
                         <div class="setting-info">
                             <span class="setting-title">Clear Statistics</span>
