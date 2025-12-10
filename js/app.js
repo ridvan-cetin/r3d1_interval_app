@@ -752,7 +752,27 @@ let quickStartValues = {
     intervals: 4
 };
 
+function updateQuickTotalTime() {
+    const total = quickStartValues.minutes * quickStartValues.intervals;
+    const hours = Math.floor(total / 60);
+    const mins = total % 60;
+
+    let display;
+    if (hours > 0 && mins > 0) {
+        display = `${hours}h ${mins}m`;
+    } else if (hours > 0) {
+        display = `${hours}h`;
+    } else {
+        display = `${total} min`;
+    }
+
+    document.getElementById('quick-total-time').textContent = display;
+}
+
 function setupQuickStartPickers() {
+    // Initialize total time display
+    updateQuickTotalTime();
+
     // Picker arrow buttons
     document.querySelectorAll('.picker-arrow').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -774,6 +794,7 @@ function setupQuickStartPickers() {
                 }
                 document.getElementById('quick-intervals').textContent = quickStartValues.intervals;
             }
+            updateQuickTotalTime();
         });
 
         // Long press for fast scrolling

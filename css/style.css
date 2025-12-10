@@ -765,14 +765,35 @@ main {
     fill: white;
 }
 
+/* Total time display in quick start */
+.quick-total {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 8px;
+}
+
+.quick-total-label {
+    font-size: 10px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.quick-total-value {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--accent-green);
+}
+
 /* Adjust main content to account for quick start section */
 #home-screen main {
-    padding-bottom: 120px;
+    padding-bottom: 95px;
 }
 
 /* Move FAB above quick start section */
 #home-screen .fab {
-    bottom: 110px;
+    bottom: 100px;
 }
 
 /* Safe area for notched phones */
@@ -786,6 +807,6 @@ main {
     }
 
     #home-screen .fab {
-        bottom: calc(110px + env(safe-area-inset-bottom));
+        bottom: calc(100px + env(safe-area-inset-bottom));
     }
 }
