@@ -31,14 +31,93 @@
                 </div>
             </header>
 
+            <!-- Tab Navigation -->
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="profiles">Profiles</button>
+                <button class="tab-btn" data-tab="pomodoro">🍅 Pomodoro</button>
+            </div>
+
             <main>
-                <p class="subtitle">Select a profile to start</p>
-                <div id="profiles-grid" class="profiles-grid">
-                    <!-- Profiles will be inserted here -->
+                <!-- Profiles Tab Content -->
+                <div id="profiles-tab-content">
+                    <p class="subtitle">Select a profile to start</p>
+                    <div id="profiles-grid" class="profiles-grid">
+                        <!-- Profiles will be inserted here -->
+                    </div>
+                    <button id="add-profile-btn" class="fab" aria-label="Add Profile">
+                        <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                    </button>
                 </div>
-                <button id="add-profile-btn" class="fab" aria-label="Add Profile">
-                    <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-                </button>
+
+                <!-- Pomodoro Tab Content -->
+                <div id="pomodoro-tab-content" class="hidden">
+                    <div class="pomodoro-home">
+                        <!-- Today's Tomatoes -->
+                        <div class="pomodoro-today">
+                            <div class="pomodoro-today-header">
+                                <span class="pomodoro-today-label">Today's Tomatoes</span>
+                                <span id="pomodoro-today-count" class="pomodoro-today-count">0</span>
+                            </div>
+                            <div id="tomato-icons" class="tomato-icons"></div>
+                        </div>
+
+                        <!-- Task Input -->
+                        <div class="pomodoro-task">
+                            <input type="text" id="pomodoro-task-input" placeholder="What are you working on?">
+                        </div>
+
+                        <!-- Pomodoro Timer Display -->
+                        <div class="pomodoro-timer-display">
+                            <div id="pomodoro-status" class="pomodoro-status idle">Ready to Focus</div>
+                            <div class="timer-display pomodoro-ring">
+                                <svg class="progress-ring" viewBox="0 0 200 200">
+                                    <circle class="progress-ring-bg" cx="100" cy="100" r="90"/>
+                                    <circle id="pomodoro-progress-circle" class="progress-ring-fg" cx="100" cy="100" r="90" style="stroke: #E53935"/>
+                                </svg>
+                                <div class="timer-text">
+                                    <span id="pomodoro-time" class="pomodoro-time-value">25:00</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Pomodoro Controls -->
+                        <div id="pomodoro-controls" class="timer-controls">
+                            <button id="pomodoro-start-btn" class="control-btn primary" style="background:#E53935">
+                                <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                            </button>
+                        </div>
+
+                        <!-- Session Info -->
+                        <div class="pomodoro-session-info">
+                            <span class="pomodoro-info-item">
+                                <span class="info-label">Focus:</span>
+                                <span id="pomo-focus-display">25 min</span>
+                            </span>
+                            <span class="pomodoro-info-item">
+                                <span class="info-label">Break:</span>
+                                <span id="pomo-break-display">5 min</span>
+                            </span>
+                            <span class="pomodoro-info-item">
+                                <span class="info-label">Long Break:</span>
+                                <span id="pomo-long-display">after 4</span>
+                            </span>
+                        </div>
+
+                        <!-- Pomodoro Settings Button -->
+                        <button id="pomodoro-settings-btn" class="pomodoro-settings-btn">
+                            <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+                            Pomodoro Settings
+                        </button>
+
+                        <!-- Today's Tasks -->
+                        <div class="pomodoro-tasks-section">
+                            <h3>Today's Tasks</h3>
+                            <div id="pomodoro-task-history" class="pomodoro-task-history">
+                                <p class="empty-state">No tasks completed today</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </main>
 
             <!-- Quick Start Section -->
@@ -490,6 +569,82 @@
                 <div id="history-list" class="history-list">
                     <p class="empty-state">No sessions yet</p>
                 </div>
+            </main>
+        </div>
+
+        <!-- Pomodoro Settings Screen -->
+        <div id="pomodoro-settings-screen" class="screen">
+            <header>
+                <button id="pomo-settings-back-btn" class="icon-btn" aria-label="Back">
+                    <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+                </button>
+                <h1>🍅 Pomodoro Settings</h1>
+                <button id="pomo-settings-save-btn" class="text-btn">Save</button>
+            </header>
+
+            <main class="settings-main">
+                <section>
+                    <h2>Timer Durations</h2>
+                    <div class="form-group">
+                        <label>Focus Duration: <span id="pomo-focus-value">25</span> min</label>
+                        <input type="range" id="pomo-focus-slider" min="5" max="60" value="25">
+                    </div>
+                    <div class="form-group">
+                        <label>Short Break: <span id="pomo-short-value">5</span> min</label>
+                        <input type="range" id="pomo-short-slider" min="1" max="15" value="5">
+                    </div>
+                    <div class="form-group">
+                        <label>Long Break: <span id="pomo-long-value">15</span> min</label>
+                        <input type="range" id="pomo-long-slider" min="10" max="30" value="15">
+                    </div>
+                </section>
+
+                <section>
+                    <h2>Break Schedule</h2>
+                    <div class="form-group">
+                        <label>Long Break after: <span id="pomo-sessions-value">4</span> pomodoros</label>
+                        <input type="range" id="pomo-sessions-slider" min="2" max="8" value="4">
+                    </div>
+                </section>
+
+                <section>
+                    <h2>Auto-Start</h2>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <span class="setting-title">Auto-start Breaks</span>
+                            <span class="setting-desc">Automatically start break after focus ends</span>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="pomo-auto-break" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <span class="setting-title">Auto-start Focus</span>
+                            <span class="setting-desc">Automatically start focus after break ends</span>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="pomo-auto-focus">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </section>
+
+                <section>
+                    <h2>Information</h2>
+                    <div class="pomodoro-info-section">
+                        <p>The Pomodoro Technique is a time management method:</p>
+                        <ul>
+                            <li>🍅 Work for 25 minutes (1 pomodoro)</li>
+                            <li>☕ Take a 5-minute short break</li>
+                            <li>🔄 Repeat 4 times</li>
+                            <li>🌴 Take a 15-30 minute long break</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <button id="clear-pomodoro-history-btn" class="delete-btn">Clear Pomodoro History</button>
             </main>
         </div>
     </div>
