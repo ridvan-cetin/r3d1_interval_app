@@ -40,6 +40,39 @@
                     <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
                 </button>
             </main>
+
+            <!-- Quick Start Section -->
+            <div class="quick-start-section">
+                <div class="quick-start-container">
+                    <div class="picker-box">
+                        <label>Minutes</label>
+                        <div class="picker-wheel" id="minutes-picker">
+                            <button class="picker-arrow up" data-picker="minutes" data-dir="up">
+                                <svg viewBox="0 0 24 24"><path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/></svg>
+                            </button>
+                            <div class="picker-value" id="quick-minutes">5</div>
+                            <button class="picker-arrow down" data-picker="minutes" data-dir="down">
+                                <svg viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="picker-box">
+                        <label>Intervals</label>
+                        <div class="picker-wheel" id="intervals-picker">
+                            <button class="picker-arrow up" data-picker="intervals" data-dir="up">
+                                <svg viewBox="0 0 24 24"><path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/></svg>
+                            </button>
+                            <div class="picker-value" id="quick-intervals">4</div>
+                            <button class="picker-arrow down" data-picker="intervals" data-dir="down">
+                                <svg viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <button class="quick-start-btn" id="quick-start-btn">
+                        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                    </button>
+                </div>
+            </div>
         </div>
 
         <!-- Timer Screen -->

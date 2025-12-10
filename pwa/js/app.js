@@ -216,8 +216,13 @@ function stopTimer() {
         const profile = state.profiles.find(p => p.id === state.timer.profileId);
         const duration = state.timer.sessionSeconds - state.timer.remainingSessionSeconds;
 
+        // Use "Quick Timer" for quick start sessions (no profileId)
+        const profileName = state.timer.profileId ?
+            (profile ? profile.name : 'Unknown') :
+            'Quick Timer';
+
         state.sessions.push({
-            profileName: profile ? profile.name : 'Unknown',
+            profileName: profileName,
             date: new Date().toISOString(),
             durationSeconds: duration,
             intervalsCompleted: state.timer.intervalsCompleted,
@@ -291,8 +296,14 @@ function completeSession() {
 
     // Save session
     const profile = state.profiles.find(p => p.id === state.timer.profileId);
+
+    // Use "Quick Timer" for quick start sessions (no profileId)
+    const profileName = state.timer.profileId ?
+        (profile ? profile.name : 'Unknown') :
+        'Quick Timer';
+
     state.sessions.push({
-        profileName: profile ? profile.name : 'Unknown',
+        profileName: profileName,
         date: new Date().toISOString(),
         durationSeconds: state.timer.sessionSeconds,
         intervalsCompleted: state.timer.intervalsCompleted,
@@ -730,6 +741,85 @@ function setupEventListeners() {
             await requestWakeLock();
         }
     });
+
+    // Quick Start picker controls
+    setupQuickStartPickers();
+}
+
+// Quick Start Functionality
+let quickStartValues = {
+    minutes: 5,
+    intervals: 4
+};
+
+function setupQuickStartPickers() {
+    // Picker arrow buttons
+    document.querySelectorAll('.picker-arrow').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const picker = btn.dataset.picker;
+            const dir = btn.dataset.dir;
+
+            if (picker === 'minutes') {
+                if (dir === 'up') {
+                    quickStartValues.minutes = quickStartValues.minutes >= 60 ? 1 : quickStartValues.minutes + 1;
+                } else {
+                    quickStartValues.minutes = quickStartValues.minutes <= 1 ? 60 : quickStartValues.minutes - 1;
+                }
+                document.getElementById('quick-minutes').textContent = quickStartValues.minutes;
+            } else if (picker === 'intervals') {
+                if (dir === 'up') {
+                    quickStartValues.intervals = quickStartValues.intervals >= 60 ? 1 : quickStartValues.intervals + 1;
+                } else {
+                    quickStartValues.intervals = quickStartValues.intervals <= 1 ? 60 : quickStartValues.intervals - 1;
+                }
+                document.getElementById('quick-intervals').textContent = quickStartValues.intervals;
+            }
+        });
+
+        // Long press for fast scrolling
+        let intervalId = null;
+        btn.addEventListener('mousedown', () => {
+            intervalId = setInterval(() => btn.click(), 100);
+        });
+        btn.addEventListener('mouseup', () => clearInterval(intervalId));
+        btn.addEventListener('mouseleave', () => clearInterval(intervalId));
+        btn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            intervalId = setInterval(() => btn.click(), 100);
+        });
+        btn.addEventListener('touchend', () => clearInterval(intervalId));
+    });
+
+    // Quick start button
+    document.getElementById('quick-start-btn').addEventListener('click', startQuickTimer);
+}
+
+function startQuickTimer() {
+    const intervalMinutes = quickStartValues.minutes;
+    const totalIntervals = quickStartValues.intervals;
+    const sessionMinutes = intervalMinutes * totalIntervals;
+
+    state.timer = {
+        status: 'idle',
+        profileId: null,
+        intervalSeconds: intervalMinutes * 60,
+        remainingIntervalSeconds: intervalMinutes * 60,
+        sessionSeconds: sessionMinutes * 60,
+        remainingSessionSeconds: sessionMinutes * 60,
+        intervalsCompleted: 0,
+        breakRemainingSeconds: 0,
+        breakAfterIntervals: 0,
+        breakDurationSeconds: 0,
+        startTime: null,
+        totalIntervals: totalIntervals
+    };
+
+    document.getElementById('timer-profile-name').textContent = `Quick ${intervalMinutes}min × ${totalIntervals}`;
+    document.getElementById('progress-circle').style.stroke = '#4CAF50';
+
+    updateTimerDisplay();
+    showScreen('timer');
+    showTimerControls('idle');
 }
 
 // Initialize

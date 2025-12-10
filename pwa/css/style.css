@@ -667,6 +667,114 @@ main {
     display: none !important;
 }
 
+/* Quick Start Section */
+.quick-start-section {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--bg-tertiary);
+    padding: 12px 16px;
+    padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+}
+
+.quick-start-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.picker-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.picker-box label {
+    font-size: 10px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+}
+
+.picker-wheel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: var(--bg-tertiary);
+    border-radius: 12px;
+    padding: 4px;
+    min-width: 70px;
+}
+
+.picker-arrow {
+    background: none;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+}
+
+.picker-arrow:hover,
+.picker-arrow:active {
+    opacity: 1;
+}
+
+.picker-arrow svg {
+    width: 20px;
+    height: 20px;
+    fill: var(--text-primary);
+}
+
+.picker-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text-primary);
+    min-width: 50px;
+    text-align: center;
+    padding: 4px 0;
+    font-variant-numeric: tabular-nums;
+}
+
+.quick-start-btn {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--accent-green);
+    border: none;
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s;
+    margin-left: 8px;
+}
+
+.quick-start-btn:active {
+    transform: scale(0.95);
+}
+
+.quick-start-btn svg {
+    width: 28px;
+    height: 28px;
+    fill: white;
+}
+
+/* Adjust main content to account for quick start section */
+#home-screen main {
+    padding-bottom: 120px;
+}
+
+/* Move FAB above quick start section */
+#home-screen .fab {
+    bottom: 110px;
+}
+
 /* Safe area for notched phones */
 @supports (padding-top: env(safe-area-inset-top)) {
     header {
@@ -675,5 +783,9 @@ main {
 
     .fab {
         bottom: calc(24px + env(safe-area-inset-bottom));
+    }
+
+    #home-screen .fab {
+        bottom: calc(110px + env(safe-area-inset-bottom));
     }
 }
