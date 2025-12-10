@@ -396,7 +396,7 @@
             height: dp(100) if root.current_tab == 'profiles' else 0
             opacity: 1 if root.current_tab == 'profiles' else 0
             padding: dp(16), dp(12)
-            spacing: dp(12)
+            spacing: dp(16)
             canvas.before:
                 Color:
                     rgba: get_color_from_hex(bg_secondary)
@@ -406,104 +406,202 @@
 
             BoxLayout:
                 orientation: 'vertical'
+                spacing: dp(4)
                 Label:
                     text: 'Minutes'
-                    font_size: sp(10)
+                    font_size: sp(11)
                     color: get_color_from_hex(text_secondary)
+                    size_hint_y: None
+                    height: dp(18)
                 BoxLayout:
+                    spacing: dp(4)
                     Button:
                         text: '-'
-                        size_hint_x: 0.3
+                        size_hint: None, None
+                        size: dp(36), dp(36)
+                        font_size: sp(20)
+                        bold: True
+                        background_normal: ''
+                        background_color: 0, 0, 0, 0
+                        color: get_color_from_hex(text_primary)
                         on_press: quick_min.text = str(max(1, int(quick_min.text) - 1))
+                        canvas.before:
+                            Color:
+                                rgba: get_color_from_hex(bg_tertiary)
+                            RoundedRectangle:
+                                pos: self.pos
+                                size: self.size
+                                radius: [dp(8)]
                     Label:
                         id: quick_min
                         text: '5'
-                        font_size: sp(24)
+                        font_size: sp(28)
                         bold: True
+                        color: get_color_from_hex(text_primary)
                     Button:
                         text: '+'
-                        size_hint_x: 0.3
+                        size_hint: None, None
+                        size: dp(36), dp(36)
+                        font_size: sp(20)
+                        bold: True
+                        background_normal: ''
+                        background_color: 0, 0, 0, 0
+                        color: get_color_from_hex(text_primary)
                         on_press: quick_min.text = str(min(60, int(quick_min.text) + 1))
+                        canvas.before:
+                            Color:
+                                rgba: get_color_from_hex(bg_tertiary)
+                            RoundedRectangle:
+                                pos: self.pos
+                                size: self.size
+                                radius: [dp(8)]
 
             BoxLayout:
                 orientation: 'vertical'
+                spacing: dp(4)
                 Label:
                     text: 'Intervals'
-                    font_size: sp(10)
+                    font_size: sp(11)
                     color: get_color_from_hex(text_secondary)
+                    size_hint_y: None
+                    height: dp(18)
                 BoxLayout:
+                    spacing: dp(4)
                     Button:
                         text: '-'
-                        size_hint_x: 0.3
+                        size_hint: None, None
+                        size: dp(36), dp(36)
+                        font_size: sp(20)
+                        bold: True
+                        background_normal: ''
+                        background_color: 0, 0, 0, 0
+                        color: get_color_from_hex(text_primary)
                         on_press: quick_int.text = str(max(1, int(quick_int.text) - 1))
+                        canvas.before:
+                            Color:
+                                rgba: get_color_from_hex(bg_tertiary)
+                            RoundedRectangle:
+                                pos: self.pos
+                                size: self.size
+                                radius: [dp(8)]
                     Label:
                         id: quick_int
                         text: '4'
-                        font_size: sp(24)
+                        font_size: sp(28)
                         bold: True
+                        color: get_color_from_hex(text_primary)
                     Button:
                         text: '+'
-                        size_hint_x: 0.3
+                        size_hint: None, None
+                        size: dp(36), dp(36)
+                        font_size: sp(20)
+                        bold: True
+                        background_normal: ''
+                        background_color: 0, 0, 0, 0
+                        color: get_color_from_hex(text_primary)
                         on_press: quick_int.text = str(min(60, int(quick_int.text) + 1))
+                        canvas.before:
+                            Color:
+                                rgba: get_color_from_hex(bg_tertiary)
+                            RoundedRectangle:
+                                pos: self.pos
+                                size: self.size
+                                radius: [dp(8)]
 
-            RoundedButton:
+            # GO Button
+            Button:
                 text: 'GO'
                 size_hint: None, None
-                size: dp(60), dp(60)
-                background_color: get_color_from_hex(accent_green)
+                size: dp(64), dp(64)
+                font_size: sp(18)
+                bold: True
+                background_normal: ''
+                background_color: 0, 0, 0, 0
+                color: 1, 1, 1, 1
+                pos_hint: {'center_y': 0.5}
                 on_press: root.start_quick_timer(int(quick_min.text), int(quick_int.text))
+                canvas.before:
+                    Color:
+                        rgba: get_color_from_hex(accent_green)
+                    Ellipse:
+                        pos: self.pos
+                        size: self.size
 
 
 <ProfileCard>:
     size_hint_y: None
-    height: dp(140)
+    height: dp(130)
     background_normal: ''
+    background_color: 0, 0, 0, 0
     canvas.before:
         Color:
             rgba: get_color_from_hex(bg_secondary)
         RoundedRectangle:
             pos: self.pos
             size: self.size
-            radius: [dp(16)]
+            radius: [dp(12)]
         Color:
-            rgba: get_color_from_hex(self.profile.get('color', '#2196F3') + '33')
+            rgba: get_color_from_hex(self.profile.get('color', '#2196F3'))
         RoundedRectangle:
-            pos: self.pos
-            size: self.size
-            radius: [dp(16)]
+            pos: self.x, self.y + self.height - dp(6)
+            size: self.width, dp(6)
+            radius: [dp(12), dp(12), 0, 0]
 
     BoxLayout:
         orientation: 'vertical'
-        padding: dp(16)
-        spacing: dp(8)
+        padding: dp(12)
+        spacing: dp(4)
+        pos: root.pos
+        size: root.size
 
-        # Icon placeholder
-        Widget:
+        # Icon circle
+        BoxLayout:
             size_hint_y: None
-            height: dp(40)
-            canvas:
-                Color:
-                    rgba: get_color_from_hex(root.profile.get('color', '#2196F3'))
-                Ellipse:
-                    pos: self.x, self.y
-                    size: dp(40), dp(40)
+            height: dp(36)
+            Widget:
+                size_hint: None, None
+                size: dp(36), dp(36)
+                canvas:
+                    Color:
+                        rgba: get_color_from_hex(root.profile.get('color', '#2196F3'))
+                    Ellipse:
+                        pos: self.pos
+                        size: self.size
 
+        # Profile name
         Label:
             text: root.profile.get('name', 'Profile')
-            font_size: sp(16)
+            font_size: sp(15)
             bold: True
             color: get_color_from_hex(text_primary)
             halign: 'left'
-            text_size: self.size
+            valign: 'middle'
+            text_size: self.width, None
             size_hint_y: None
-            height: dp(24)
+            height: dp(28)
+            shorten: True
+            shorten_from: 'right'
 
+        # Profile details
         Label:
-            text: f"{root.profile.get('interval_minutes', 25)} min intervals\\n{root.profile.get('session_minutes', 60)} min total"
+            text: f"{root.profile.get('interval_minutes', 25)} min"
             font_size: sp(12)
             color: get_color_from_hex(text_secondary)
             halign: 'left'
-            text_size: self.size
+            valign: 'top'
+            text_size: self.width, None
+            size_hint_y: None
+            height: dp(18)
+
+        Label:
+            text: f"{root.profile.get('session_minutes', 60)} min total"
+            font_size: sp(11)
+            color: get_color_from_hex(text_secondary)
+            halign: 'left'
+            valign: 'top'
+            text_size: self.width, None
+            size_hint_y: None
+            height: dp(16)
 
 
 # ============= TIMER SCREEN =============
@@ -598,28 +696,38 @@
             # Controls
             BoxLayout:
                 size_hint_y: None
-                height: dp(80)
-                spacing: dp(24)
+                height: dp(100)
+                spacing: dp(16)
+                padding: dp(16), 0
 
                 Widget:
+                    size_hint_x: 0.5
 
                 # Stop Button
                 Button:
                     size_hint: None, None
-                    size: dp(64), dp(64)
+                    size: dp(60), dp(60)
+                    pos_hint: {'center_y': 0.5}
                     background_normal: ''
                     background_color: 0, 0, 0, 0
                     opacity: 0 if root.status == 'idle' else 1
+                    disabled: root.status == 'idle'
                     on_press: root.stop_timer() if root.status != 'idle' else None
                     canvas.before:
                         Color:
+                            rgba: get_color_from_hex(bg_tertiary) if self.state == 'normal' else get_color_from_hex(text_secondary)
+                        Ellipse:
+                            pos: self.pos
+                            size: self.size
+                        Color:
                             rgba: get_color_from_hex(text_secondary)
                         Line:
-                            circle: self.center_x, self.center_y, dp(28)
+                            circle: self.center_x, self.center_y, dp(26)
                             width: dp(2)
                     Label:
                         text: 'Stop'
-                        font_size: sp(10)
+                        font_size: sp(11)
+                        bold: True
                         center: self.parent.center
                         color: get_color_from_hex(text_primary)
 
@@ -627,7 +735,9 @@
                 Button:
                     size_hint: None, None
                     size: dp(80), dp(80)
+                    pos_hint: {'center_y': 0.5}
                     background_normal: ''
+                    background_color: 0, 0, 0, 0
                     on_press: root.start_timer() if root.status == 'idle' else (root.pause_timer() if root.status == 'running' else root.resume_timer())
                     canvas.before:
                         Color:
@@ -637,31 +747,41 @@
                             size: self.size
                     Label:
                         text: 'Start' if root.status == 'idle' else ('Pause' if root.status == 'running' else 'Resume')
-                        font_size: sp(12)
+                        font_size: sp(13)
+                        bold: True
                         center: self.parent.center
                         color: 1, 1, 1, 1
 
                 # Skip Break Button
                 Button:
                     size_hint: None, None
-                    size: dp(64), dp(64)
+                    size: dp(60), dp(60)
+                    pos_hint: {'center_y': 0.5}
                     background_normal: ''
                     background_color: 0, 0, 0, 0
                     opacity: 1 if root.status == 'break' else 0
+                    disabled: root.status != 'break'
                     on_press: root.skip_break() if root.status == 'break' else None
                     canvas.before:
                         Color:
+                            rgba: get_color_from_hex('#FF9800' + '33') if self.state == 'normal' else get_color_from_hex('#FF9800')
+                        Ellipse:
+                            pos: self.pos
+                            size: self.size
+                        Color:
                             rgba: get_color_from_hex('#FF9800')
                         Line:
-                            circle: self.center_x, self.center_y, dp(28)
+                            circle: self.center_x, self.center_y, dp(26)
                             width: dp(2)
                     Label:
                         text: 'Skip'
-                        font_size: sp(10)
+                        font_size: sp(11)
+                        bold: True
                         center: self.parent.center
                         color: get_color_from_hex(text_primary)
 
                 Widget:
+                    size_hint_x: 0.5
 
 
 # ============= POMODORO SCREEN =============
@@ -759,34 +879,48 @@
             # Controls
             BoxLayout:
                 size_hint_y: None
-                height: dp(80)
-                spacing: dp(24)
+                height: dp(100)
+                spacing: dp(16)
+                padding: dp(16), 0
 
                 Widget:
+                    size_hint_x: 0.5
 
+                # Stop Button
                 Button:
                     size_hint: None, None
-                    size: dp(64), dp(64)
+                    size: dp(60), dp(60)
+                    pos_hint: {'center_y': 0.5}
                     background_normal: ''
                     background_color: 0, 0, 0, 0
                     opacity: 0 if root.status == 'idle' else 1
+                    disabled: root.status == 'idle'
                     on_press: root.stop_pomodoro()
                     canvas.before:
                         Color:
+                            rgba: get_color_from_hex(bg_tertiary) if self.state == 'normal' else get_color_from_hex(text_secondary)
+                        Ellipse:
+                            pos: self.pos
+                            size: self.size
+                        Color:
                             rgba: get_color_from_hex(text_secondary)
                         Line:
-                            circle: self.center_x, self.center_y, dp(28)
+                            circle: self.center_x, self.center_y, dp(26)
                             width: dp(2)
                     Label:
                         text: 'Stop'
-                        font_size: sp(10)
+                        font_size: sp(11)
+                        bold: True
                         center: self.parent.center
                         color: get_color_from_hex(text_primary)
 
+                # Main Control Button
                 Button:
                     size_hint: None, None
                     size: dp(80), dp(80)
+                    pos_hint: {'center_y': 0.5}
                     background_normal: ''
+                    background_color: 0, 0, 0, 0
                     on_press: root.start_pomodoro() if root.status == 'idle' else (root.pause_pomodoro() if root.status != 'paused' else root.resume_pomodoro())
                     canvas.before:
                         Color:
@@ -796,11 +930,13 @@
                             size: self.size
                     Label:
                         text: 'Start' if root.status == 'idle' else ('Resume' if root.status == 'paused' else 'Pause')
-                        font_size: sp(12)
+                        font_size: sp(13)
+                        bold: True
                         center: self.parent.center
                         color: 1, 1, 1, 1
 
                 Widget:
+                    size_hint_x: 0.5
 
 
 # ============= EDITOR SCREEN =============
