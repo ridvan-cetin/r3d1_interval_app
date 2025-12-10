@@ -1,0 +1,11 @@
+# R3D1 Interval Timer - Kivy Version
+# Python dependencies
+
+kivy>=2.0.0
+kivymd>=1.0.0  # Optional: Material Design components
+
+# For building Android APK (optional)
+# buildozer>=1.4.0
+
+# For iOS (optional, macOS only)
+# kivy-ios>=1.3.0
