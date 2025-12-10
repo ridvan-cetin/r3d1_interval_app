@@ -278,6 +278,26 @@
                     </div>
                 </div>
 
+                <div class="form-group">
+                    <label>Gradient Style</label>
+                    <div class="gradient-options" id="gradient-options">
+                        <button class="gradient-btn selected" data-gradient="none" style="background:#333">None</button>
+                        <button class="gradient-btn" data-gradient="sunset" style="background:linear-gradient(135deg, #FF6B6B, #FFE66D)"></button>
+                        <button class="gradient-btn" data-gradient="ocean" style="background:linear-gradient(135deg, #2196F3, #00BCD4)"></button>
+                        <button class="gradient-btn" data-gradient="forest" style="background:linear-gradient(135deg, #4CAF50, #8BC34A)"></button>
+                        <button class="gradient-btn" data-gradient="purple" style="background:linear-gradient(135deg, #9C27B0, #E91E63)"></button>
+                        <button class="gradient-btn" data-gradient="fire" style="background:linear-gradient(135deg, #FF5722, #FF9800)"></button>
+                        <button class="gradient-btn" data-gradient="sky" style="background:linear-gradient(135deg, #03A9F4, #B3E5FC)"></button>
+                        <button class="gradient-btn" data-gradient="night" style="background:linear-gradient(135deg, #3F51B5, #7C4DFF)"></button>
+                        <button class="gradient-btn" data-gradient="mint" style="background:linear-gradient(135deg, #00BCD4, #4CAF50)"></button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="notification-message">Custom Notification Message (optional)</label>
+                    <input type="text" id="notification-message" placeholder="e.g., Time for a stretch!">
+                </div>
+
                 <button id="delete-profile-btn" class="delete-btn hidden">Delete Profile</button>
             </main>
         </div>
@@ -310,6 +330,19 @@
                     </div>
                     <div class="setting-item">
                         <div class="setting-info">
+                            <span class="setting-title">Sound Type</span>
+                            <span class="setting-desc">Choose alert sound style</span>
+                        </div>
+                        <select id="sound-type-select" class="setting-select">
+                            <option value="soft">Soft</option>
+                            <option value="default" selected>Default</option>
+                            <option value="loud">Loud</option>
+                            <option value="bell">Bell</option>
+                            <option value="chime">Chime</option>
+                        </select>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-info">
                             <span class="setting-title">Vibration</span>
                             <span class="setting-desc">Vibrate when interval completes</span>
                         </div>
@@ -320,6 +353,16 @@
                                 <span class="slider"></span>
                             </label>
                         </div>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <span class="setting-title">Notifications</span>
+                            <span class="setting-desc">Show alerts when timer ends (even in background)</span>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="notifications-toggle">
+                            <span class="slider"></span>
+                        </label>
                     </div>
                 </section>
 
@@ -334,6 +377,19 @@
                             <input type="checkbox" id="theme-toggle" checked>
                             <span class="slider"></span>
                         </label>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <span class="setting-title">Timer Ring Style</span>
+                            <span class="setting-desc">Customize the progress ring appearance</span>
+                        </div>
+                        <select id="ring-style-select" class="setting-select">
+                            <option value="solid" selected>Solid</option>
+                            <option value="dashed">Dashed</option>
+                            <option value="dotted">Dotted</option>
+                            <option value="pulse">Pulse</option>
+                            <option value="glow">Glow</option>
+                        </select>
                     </div>
                     <div class="setting-item">
                         <div class="setting-info">
@@ -403,6 +459,10 @@
             <main class="stats-main">
                 <p class="subtitle">Last 7 Days</p>
 
+                <div class="chart-container">
+                    <canvas id="weekly-chart" width="350" height="180"></canvas>
+                </div>
+
                 <div class="stats-grid">
                     <div class="stat-card blue">
                         <svg viewBox="0 0 24 24"><path d="M15 1H9v2h6V1zm-4 13h2V8h-2v6zm8.03-6.61l1.42-1.42c-.43-.51-.9-.99-1.41-1.41l-1.42 1.42A8.962 8.962 0 0012 4c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-2.12-.74-4.07-1.97-5.61zM12 20c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/></svg>
@@ -431,6 +491,19 @@
                     <p class="empty-state">No sessions yet</p>
                 </div>
             </main>
+        </div>
+    </div>
+
+    <!-- Session Note Modal -->
+    <div id="note-modal" class="modal">
+        <div class="modal-content">
+            <h2>Add Session Note</h2>
+            <p class="modal-desc">Record what you worked on or how the session went</p>
+            <textarea id="session-note-input" placeholder="Enter your note..." rows="3"></textarea>
+            <div class="modal-actions">
+                <button id="skip-note-btn" class="modal-btn secondary">Skip</button>
+                <button id="save-note-btn" class="modal-btn primary">Save</button>
+            </div>
         </div>
     </div>
 

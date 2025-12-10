@@ -1,6 +1,37 @@
 // R3D1 Interval Timer - PWA
 // ========================
 
+// Sound types with different frequencies and patterns
+const SOUND_TYPES = {
+    soft: { frequency: 440, duration: 0.2, volume: 0.15, type: 'sine' },
+    default: { frequency: 800, duration: 0.3, volume: 0.3, type: 'sine' },
+    loud: { frequency: 1000, duration: 0.4, volume: 0.5, type: 'square' },
+    bell: { frequency: 880, duration: 0.5, volume: 0.35, type: 'triangle', decay: true },
+    chime: { frequency: 1200, duration: 0.6, volume: 0.3, type: 'sine', harmonics: true }
+};
+
+// Gradient presets for profiles
+const GRADIENT_PRESETS = {
+    none: null,
+    sunset: 'linear-gradient(135deg, #FF6B6B, #FFE66D)',
+    ocean: 'linear-gradient(135deg, #2196F3, #00BCD4)',
+    forest: 'linear-gradient(135deg, #4CAF50, #8BC34A)',
+    purple: 'linear-gradient(135deg, #9C27B0, #E91E63)',
+    fire: 'linear-gradient(135deg, #FF5722, #FF9800)',
+    sky: 'linear-gradient(135deg, #03A9F4, #B3E5FC)',
+    night: 'linear-gradient(135deg, #3F51B5, #7C4DFF)',
+    mint: 'linear-gradient(135deg, #00BCD4, #4CAF50)'
+};
+
+// Timer ring animation styles
+const RING_STYLES = {
+    solid: { dasharray: null, animation: null },
+    dashed: { dasharray: '20, 10', animation: null },
+    dotted: { dasharray: '5, 10', animation: null },
+    pulse: { dasharray: null, animation: 'pulse 1s ease-in-out infinite' },
+    glow: { dasharray: null, animation: 'glow 2s ease-in-out infinite' }
+};
+
 // Icon SVG paths
 const PROFILE_ICONS = {
     timer: 'M15 1H9v2h6V1zm-4 13h2V8h-2v6zm8.03-6.61l1.42-1.42c-.43-.51-.9-.99-1.41-1.41l-1.42 1.42A8.962 8.962 0 0012 4c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-2.12-.74-4.07-1.97-5.61zM12 20c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z',
@@ -93,7 +124,10 @@ let state = {
         sound: true,
         vibration: true,
         wakelock: false,
-        darkTheme: true
+        darkTheme: true,
+        soundType: 'default',
+        notifications: false,
+        ringStyle: 'solid'
     },
     timer: {
         status: 'idle', // idle, running, paused, break, completed
@@ -120,6 +154,7 @@ function init() {
     applyTheme();
     renderProfiles();
     setupEventListeners();
+    setupKeyboardShortcuts();
     applySettings();
     registerServiceWorker();
 }
@@ -159,10 +194,15 @@ function renderProfiles() {
     const grid = document.getElementById('profiles-grid');
     grid.innerHTML = state.profiles.map(profile => {
         const iconPath = PROFILE_ICONS[profile.icon] || PROFILE_ICONS.timer;
+        const gradient = profile.gradient && GRADIENT_PRESETS[profile.gradient];
+        const bgStyle = gradient ? `background: ${gradient}` : `background: ${profile.color}33`;
+        const iconStyle = gradient ? 'fill: white' : `fill: ${profile.color}`;
+        const cardStyle = gradient ? `--profile-color: ${profile.color}; ${bgStyle}` : `--profile-color: ${profile.color}`;
+
         return `
-        <div class="profile-card" data-id="${profile.id}" style="--profile-color: ${profile.color}">
-            <div class="profile-icon" style="background: ${profile.color}33">
-                <svg viewBox="0 0 24 24" style="fill: ${profile.color}">
+        <div class="profile-card ${gradient ? 'gradient-card' : ''}" data-id="${profile.id}" style="${cardStyle}">
+            <div class="profile-icon" style="${bgStyle}">
+                <svg viewBox="0 0 24 24" style="${iconStyle}">
                     <path d="${iconPath}"/>
                 </svg>
             </div>
@@ -265,14 +305,19 @@ function stopTimer() {
             (profile ? profile.name : 'Unknown') :
             'Quick Timer';
 
+        // Store session ID for potential note adding
+        const sessionId = Date.now();
         state.sessions.push({
+            id: sessionId,
             profileName: profileName,
             date: new Date().toISOString(),
             durationSeconds: duration,
             intervalsCompleted: state.timer.intervalsCompleted,
-            completed: state.timer.remainingSessionSeconds <= 0
+            completed: state.timer.remainingSessionSeconds <= 0,
+            notes: ''
         });
         saveSessions();
+        state.lastSessionId = sessionId;
     }
 
     showScreen('home');
@@ -292,7 +337,7 @@ function timerTick() {
         state.timer.remainingSessionSeconds--;
 
         if (state.timer.breakRemainingSeconds <= 0) {
-            playAlert();
+            playAlert(true, false); // Break end
             state.timer.status = 'running';
             updateStatusBadge();
             showTimerControls('running');
@@ -310,7 +355,7 @@ function timerTick() {
         // Interval completed
         if (state.timer.remainingIntervalSeconds <= 0) {
             state.timer.intervalsCompleted++;
-            playAlert();
+            playAlert(false, false); // Interval complete
 
             // Check for break
             if (state.timer.breakAfterIntervals > 0 &&
@@ -334,7 +379,7 @@ function completeSession() {
     releaseWakeLock();
 
     state.timer.status = 'completed';
-    playAlert();
+    playAlert(false, true); // Session complete
     updateStatusBadge();
     showTimerControls('completed');
 
@@ -346,14 +391,21 @@ function completeSession() {
         (profile ? profile.name : 'Unknown') :
         'Quick Timer';
 
+    const sessionId = Date.now();
     state.sessions.push({
+        id: sessionId,
         profileName: profileName,
         date: new Date().toISOString(),
         durationSeconds: state.timer.sessionSeconds,
         intervalsCompleted: state.timer.intervalsCompleted,
-        completed: true
+        completed: true,
+        notes: ''
     });
     saveSessions();
+    state.lastSessionId = sessionId;
+
+    // Show note prompt after short delay
+    setTimeout(() => showSessionNotePrompt(sessionId), 500);
 }
 
 function updateTimerDisplay() {
@@ -487,6 +539,18 @@ function openProfileEditor(profileId = null) {
         btn.classList.toggle('selected', btn.dataset.color === selectedColor);
     });
 
+    // Gradient selection
+    const selectedGradient = profile?.gradient || 'none';
+    document.querySelectorAll('.gradient-btn').forEach(btn => {
+        btn.classList.toggle('selected', btn.dataset.gradient === selectedGradient);
+    });
+
+    // Custom notification message
+    const notificationInput = document.getElementById('notification-message');
+    if (notificationInput) {
+        notificationInput.value = profile?.notificationMessage || '';
+    }
+
     // Show/hide delete button
     document.getElementById('delete-profile-btn').classList.toggle('hidden', !profile || profile.isDefault);
 
@@ -502,7 +566,9 @@ function saveProfile() {
 
     const selectedColor = document.querySelector('.color-btn.selected');
     const selectedIcon = document.querySelector('.icon-btn-select.selected');
+    const selectedGradient = document.querySelector('.gradient-btn.selected');
     const breakEnabled = document.getElementById('break-toggle').checked;
+    const notificationMessage = document.getElementById('notification-message')?.value.trim() || '';
 
     const profileData = {
         name: name,
@@ -512,6 +578,8 @@ function saveProfile() {
         breakDurationMinutes: parseInt(document.getElementById('break-duration-slider').value),
         color: selectedColor ? selectedColor.dataset.color : '#2196F3',
         icon: selectedIcon ? selectedIcon.dataset.icon : 'timer',
+        gradient: selectedGradient ? selectedGradient.dataset.gradient : 'none',
+        notificationMessage: notificationMessage,
         isDefault: false
     };
 
@@ -558,6 +626,9 @@ function renderStatistics() {
     document.getElementById('stat-days').textContent = activeDays;
     document.getElementById('stat-streak').textContent = streak;
 
+    // Render weekly chart
+    renderWeeklyChart();
+
     // Render history
     const historyList = document.getElementById('history-list');
     if (state.sessions.length === 0) {
@@ -565,12 +636,18 @@ function renderStatistics() {
     } else {
         const sortedSessions = [...state.sessions].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 20);
         historyList.innerHTML = sortedSessions.map(s => `
-            <div class="history-item">
+            <div class="history-item" data-session-id="${s.id || ''}">
                 <div class="history-item-info">
                     <span class="history-item-name">${s.profileName}</span>
                     <span class="history-item-date">${formatDate(s.date)}</span>
+                    ${s.notes ? `<span class="history-item-note">"${s.notes.substring(0, 50)}${s.notes.length > 50 ? '...' : ''}"</span>` : ''}
                 </div>
-                <span class="history-item-duration">${Math.round(s.durationSeconds / 60)} min</span>
+                <div class="history-item-actions">
+                    <span class="history-item-duration">${Math.round(s.durationSeconds / 60)} min</span>
+                    ${s.id ? `<button class="note-edit-btn" onclick="editSessionNote(${s.id})">
+                        <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                    </button>` : ''}
+                </div>
             </div>
         `).join('');
     }
@@ -614,6 +691,24 @@ function applySettings() {
     document.getElementById('vibration-toggle').checked = state.settings.vibration;
     document.getElementById('wakelock-toggle').checked = state.settings.wakelock;
     document.getElementById('theme-toggle').checked = state.settings.darkTheme;
+
+    // Sound type selector
+    const soundTypeSelect = document.getElementById('sound-type-select');
+    if (soundTypeSelect) {
+        soundTypeSelect.value = state.settings.soundType || 'default';
+    }
+
+    // Ring style selector
+    const ringStyleSelect = document.getElementById('ring-style-select');
+    if (ringStyleSelect) {
+        ringStyleSelect.value = state.settings.ringStyle || 'solid';
+    }
+
+    // Notifications toggle
+    const notificationsToggle = document.getElementById('notifications-toggle');
+    if (notificationsToggle) {
+        notificationsToggle.checked = state.settings.notifications;
+    }
 }
 
 // Theme
@@ -689,20 +784,31 @@ function importData(file) {
 }
 
 // Audio & Vibration
-function playAlert() {
+function playAlert(isBreakEnd = false, isSessionComplete = false) {
     if (state.settings.sound) {
         playBeep();
     }
     if (state.settings.vibration && navigator.vibrate) {
         navigator.vibrate([200, 100, 200]);
     }
+
+    // Send browser notification
+    if (isSessionComplete) {
+        sendNotification('Session Complete!', 'Great job! You completed your timer session.');
+    } else if (isBreakEnd) {
+        sendNotification('Break Over', 'Time to get back to work!');
+    } else {
+        sendNotification('Interval Complete', `Completed ${state.timer.intervalsCompleted} intervals`);
+    }
 }
 
-function playBeep() {
+function playBeep(soundTypeName = null) {
     try {
         if (!audioContext) {
             audioContext = new (window.AudioContext || window.webkitAudioContext)();
         }
+
+        const soundType = SOUND_TYPES[soundTypeName || state.settings.soundType] || SOUND_TYPES.default;
 
         const oscillator = audioContext.createOscillator();
         const gainNode = audioContext.createGain();
@@ -710,16 +816,80 @@ function playBeep() {
         oscillator.connect(gainNode);
         gainNode.connect(audioContext.destination);
 
-        oscillator.frequency.value = 800;
-        oscillator.type = 'sine';
+        oscillator.frequency.value = soundType.frequency;
+        oscillator.type = soundType.type;
 
-        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+        gainNode.gain.setValueAtTime(soundType.volume, audioContext.currentTime);
+
+        if (soundType.decay) {
+            // Bell-like decay
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + soundType.duration);
+        } else {
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + soundType.duration);
+        }
 
         oscillator.start(audioContext.currentTime);
-        oscillator.stop(audioContext.currentTime + 0.3);
+        oscillator.stop(audioContext.currentTime + soundType.duration);
+
+        // Add harmonics for chime effect
+        if (soundType.harmonics) {
+            const osc2 = audioContext.createOscillator();
+            const gain2 = audioContext.createGain();
+            osc2.connect(gain2);
+            gain2.connect(audioContext.destination);
+            osc2.frequency.value = soundType.frequency * 1.5;
+            osc2.type = 'sine';
+            gain2.gain.setValueAtTime(soundType.volume * 0.5, audioContext.currentTime);
+            gain2.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + soundType.duration * 0.8);
+            osc2.start(audioContext.currentTime + 0.05);
+            osc2.stop(audioContext.currentTime + soundType.duration);
+        }
     } catch (e) {
         console.log('Audio not supported');
+    }
+}
+
+// Browser Notifications
+async function requestNotificationPermission() {
+    if (!('Notification' in window)) {
+        return false;
+    }
+
+    if (Notification.permission === 'granted') {
+        return true;
+    }
+
+    if (Notification.permission !== 'denied') {
+        const permission = await Notification.requestPermission();
+        return permission === 'granted';
+    }
+
+    return false;
+}
+
+function sendNotification(title, body, profileName = null) {
+    if (!state.settings.notifications || !('Notification' in window) || Notification.permission !== 'granted') {
+        return;
+    }
+
+    // Get custom message from profile if available
+    const profile = profileName ? state.profiles.find(p => p.name === profileName) :
+                    state.timer.profileId ? state.profiles.find(p => p.id === state.timer.profileId) : null;
+
+    const customMessage = profile?.notificationMessage;
+    const finalBody = customMessage || body;
+
+    try {
+        new Notification(title, {
+            body: finalBody,
+            icon: 'icons/icon-192.png',
+            badge: 'icons/icon-192.png',
+            tag: 'r3d1-timer',
+            renotify: true,
+            vibrate: [200, 100, 200]
+        });
+    } catch (e) {
+        console.log('Notification failed:', e);
     }
 }
 
@@ -834,6 +1004,14 @@ function setupEventListeners() {
         });
     });
 
+    // Gradient selection
+    document.querySelectorAll('.gradient-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.gradient-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+        });
+    });
+
     // Test buttons
     document.getElementById('test-sound-btn').addEventListener('click', () => {
         playBeep();
@@ -868,6 +1046,52 @@ function setupEventListeners() {
         saveSettings();
         applyTheme();
     });
+
+    // Sound type selector
+    const soundTypeSelect = document.getElementById('sound-type-select');
+    if (soundTypeSelect) {
+        soundTypeSelect.addEventListener('change', (e) => {
+            state.settings.soundType = e.target.value;
+            saveSettings();
+            playBeep(e.target.value); // Play preview
+        });
+    }
+
+    // Ring style selector
+    const ringStyleSelect = document.getElementById('ring-style-select');
+    if (ringStyleSelect) {
+        ringStyleSelect.addEventListener('change', (e) => {
+            state.settings.ringStyle = e.target.value;
+            saveSettings();
+        });
+    }
+
+    // Notifications toggle
+    const notificationsToggle = document.getElementById('notifications-toggle');
+    if (notificationsToggle) {
+        notificationsToggle.addEventListener('change', async (e) => {
+            if (e.target.checked) {
+                const granted = await requestNotificationPermission();
+                if (!granted) {
+                    e.target.checked = false;
+                    alert('Notification permission denied. Please enable in browser settings.');
+                    return;
+                }
+            }
+            state.settings.notifications = e.target.checked;
+            saveSettings();
+        });
+    }
+
+    // Note modal buttons
+    const saveNoteBtn = document.getElementById('save-note-btn');
+    if (saveNoteBtn) {
+        saveNoteBtn.addEventListener('click', saveSessionNote);
+    }
+    const skipNoteBtn = document.getElementById('skip-note-btn');
+    if (skipNoteBtn) {
+        skipNoteBtn.addEventListener('click', skipSessionNote);
+    }
 
     // Export/Import
     document.getElementById('export-data-btn').addEventListener('click', exportData);
@@ -1006,6 +1230,213 @@ function startQuickTimer() {
     updateTimerDisplay();
     showScreen('timer');
     showTimerControls('idle');
+}
+
+// Session Notes
+function showSessionNotePrompt(sessionId) {
+    const noteModal = document.getElementById('note-modal');
+    if (noteModal) {
+        noteModal.classList.add('active');
+        document.getElementById('session-note-input').value = '';
+        noteModal.dataset.sessionId = sessionId;
+    }
+}
+
+function saveSessionNote() {
+    const noteModal = document.getElementById('note-modal');
+    const sessionId = parseInt(noteModal.dataset.sessionId);
+    const note = document.getElementById('session-note-input').value.trim();
+
+    if (note && sessionId) {
+        const session = state.sessions.find(s => s.id === sessionId);
+        if (session) {
+            session.notes = note;
+            saveSessions();
+        }
+    }
+
+    noteModal.classList.remove('active');
+}
+
+function skipSessionNote() {
+    document.getElementById('note-modal').classList.remove('active');
+}
+
+// Edit session note from history
+function editSessionNote(sessionId) {
+    const session = state.sessions.find(s => s.id === sessionId);
+    if (!session) return;
+
+    const noteModal = document.getElementById('note-modal');
+    noteModal.classList.add('active');
+    document.getElementById('session-note-input').value = session.notes || '';
+    noteModal.dataset.sessionId = sessionId;
+}
+
+// Keyboard Shortcuts
+function setupKeyboardShortcuts() {
+    document.addEventListener('keydown', (e) => {
+        // Only handle shortcuts when on timer screen
+        if (state.currentScreen !== 'timer') return;
+
+        // Ignore if typing in an input field
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+        switch(e.code) {
+            case 'Space':
+                e.preventDefault();
+                if (state.timer.status === 'idle') {
+                    startTimer();
+                } else if (state.timer.status === 'running') {
+                    pauseTimer();
+                } else if (state.timer.status === 'paused') {
+                    resumeTimer();
+                }
+                break;
+            case 'Escape':
+                if (state.timer.status !== 'idle' && state.timer.status !== 'completed') {
+                    if (confirm('Stop the timer?')) {
+                        stopTimer();
+                    }
+                } else {
+                    showScreen('home');
+                }
+                break;
+            case 'KeyS':
+                if (state.timer.status === 'break') {
+                    skipBreak();
+                }
+                break;
+        }
+    });
+}
+
+// Charts/Graphs for Statistics
+function renderWeeklyChart() {
+    const canvas = document.getElementById('weekly-chart');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    const width = canvas.width;
+    const height = canvas.height;
+
+    // Get last 7 days data
+    const days = [];
+    const today = new Date();
+    for (let i = 6; i >= 0; i--) {
+        const date = new Date(today);
+        date.setDate(date.getDate() - i);
+        days.push({
+            date: date,
+            dateStr: date.toDateString(),
+            label: date.toLocaleDateString([], { weekday: 'short' })
+        });
+    }
+
+    // Calculate minutes per day
+    const minutesPerDay = days.map(day => {
+        const daySessions = state.sessions.filter(s =>
+            new Date(s.date).toDateString() === day.dateStr
+        );
+        return Math.round(daySessions.reduce((sum, s) => sum + s.durationSeconds, 0) / 60);
+    });
+
+    const maxMinutes = Math.max(...minutesPerDay, 30); // Minimum 30 for scale
+
+    // Clear canvas
+    ctx.clearRect(0, 0, width, height);
+
+    // Draw bars
+    const barWidth = (width - 60) / 7;
+    const barGap = 8;
+    const barActualWidth = barWidth - barGap;
+
+    // Get theme colors
+    const isDark = state.settings.darkTheme;
+    const barColor = '#4CAF50';
+    const textColor = isDark ? '#fff' : '#333';
+    const gridColor = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+
+    // Draw grid lines
+    ctx.strokeStyle = gridColor;
+    ctx.lineWidth = 1;
+    for (let i = 0; i <= 4; i++) {
+        const y = 20 + (height - 50) * (1 - i / 4);
+        ctx.beginPath();
+        ctx.moveTo(30, y);
+        ctx.lineTo(width - 10, y);
+        ctx.stroke();
+
+        // Y-axis labels
+        ctx.fillStyle = textColor;
+        ctx.font = '10px sans-serif';
+        ctx.textAlign = 'right';
+        ctx.fillText(Math.round(maxMinutes * i / 4) + 'm', 25, y + 4);
+    }
+
+    // Draw bars
+    days.forEach((day, i) => {
+        const barHeight = minutesPerDay[i] > 0 ?
+            ((minutesPerDay[i] / maxMinutes) * (height - 50)) : 2;
+        const x = 35 + i * barWidth;
+        const y = height - 30 - barHeight;
+
+        // Bar with rounded top
+        ctx.fillStyle = barColor;
+        ctx.beginPath();
+        ctx.roundRect(x, y, barActualWidth, barHeight, [4, 4, 0, 0]);
+        ctx.fill();
+
+        // Day label
+        ctx.fillStyle = textColor;
+        ctx.font = '11px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(day.label, x + barActualWidth / 2, height - 10);
+
+        // Value label on bar (if > 0)
+        if (minutesPerDay[i] > 0) {
+            ctx.fillStyle = textColor;
+            ctx.font = '10px sans-serif';
+            ctx.fillText(minutesPerDay[i], x + barActualWidth / 2, y - 5);
+        }
+    });
+}
+
+// Update timer ring style
+function updateRingStyle() {
+    const progressCircle = document.getElementById('progress-circle');
+    if (!progressCircle) return;
+
+    const style = RING_STYLES[state.settings.ringStyle] || RING_STYLES.solid;
+
+    if (style.dasharray) {
+        progressCircle.style.strokeDasharray = style.dasharray;
+    } else {
+        progressCircle.style.strokeDasharray = `${2 * Math.PI * 90}`;
+    }
+
+    if (style.animation) {
+        progressCircle.style.animation = style.animation;
+    } else {
+        progressCircle.style.animation = 'none';
+    }
+}
+
+// Apply ring style when timer starts
+function applyTimerRingStyle() {
+    const progressCircle = document.getElementById('progress-circle');
+    if (!progressCircle) return;
+
+    const circumference = 2 * Math.PI * 90;
+    progressCircle.style.strokeDasharray = circumference;
+    progressCircle.style.strokeDashoffset = 0;
+
+    const style = RING_STYLES[state.settings.ringStyle] || RING_STYLES.solid;
+    if (style.animation) {
+        progressCircle.classList.add('animated-ring');
+    } else {
+        progressCircle.classList.remove('animated-ring');
+    }
 }
 
 // Initialize

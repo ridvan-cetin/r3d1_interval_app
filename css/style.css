@@ -888,3 +888,214 @@ main {
     height: 24px;
     fill: var(--text-secondary);
 }
+
+/* Setting select dropdown */
+.setting-select {
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: var(--bg-tertiary);
+    border: none;
+    color: var(--text-primary);
+    font-size: 14px;
+    cursor: pointer;
+    min-width: 100px;
+}
+
+/* Gradient options */
+.gradient-options {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.gradient-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    font-size: 10px;
+    color: white;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    transition: transform 0.2s, border-color 0.2s;
+}
+
+.gradient-btn.selected {
+    border-color: var(--accent-blue);
+}
+
+.gradient-btn:active {
+    transform: scale(0.95);
+}
+
+/* Chart container */
+.chart-container {
+    background: var(--bg-secondary);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 20px;
+}
+
+#weekly-chart {
+    width: 100%;
+    max-width: 350px;
+    height: auto;
+    margin: 0 auto;
+    display: block;
+}
+
+/* Session note in history */
+.history-item-note {
+    display: block;
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-style: italic;
+    margin-top: 4px;
+}
+
+.history-item-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.note-edit-btn {
+    width: 28px;
+    height: 28px;
+    padding: 4px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    border-radius: 6px;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+}
+
+.note-edit-btn:hover {
+    opacity: 1;
+}
+
+.note-edit-btn svg {
+    width: 16px;
+    height: 16px;
+    fill: var(--text-secondary);
+}
+
+/* Modal */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
+}
+
+.modal.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-content {
+    background: var(--bg-secondary);
+    border-radius: 20px;
+    padding: 24px;
+    width: 90%;
+    max-width: 340px;
+}
+
+.modal-content h2 {
+    margin: 0 0 8px 0;
+    font-size: 20px;
+}
+
+.modal-desc {
+    color: var(--text-secondary);
+    font-size: 14px;
+    margin: 0 0 16px 0;
+}
+
+.modal-content textarea {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 12px;
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 14px;
+    resize: none;
+    box-sizing: border-box;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.modal-btn {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.modal-btn:active {
+    transform: scale(0.98);
+}
+
+.modal-btn.primary {
+    background: var(--accent-blue);
+    color: white;
+}
+
+.modal-btn.secondary {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+
+/* Gradient card style */
+.profile-card.gradient-card {
+    color: white;
+}
+
+.profile-card.gradient-card .profile-name,
+.profile-card.gradient-card .profile-info {
+    color: white;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+.profile-card.gradient-card .profile-edit-btn svg {
+    fill: white;
+}
+
+/* Timer ring animations */
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+@keyframes glow {
+    0%, 100% {
+        filter: drop-shadow(0 0 3px currentColor);
+    }
+    50% {
+        filter: drop-shadow(0 0 10px currentColor) drop-shadow(0 0 20px currentColor);
+    }
+}
+
+.progress-ring-fg.animated-ring {
+    animation: var(--ring-animation, none);
+}
